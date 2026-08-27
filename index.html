@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Stockmat">
+  <meta name="theme-color" content="#FF8C42">
+  <title>Stockmat - Stock Tracker</title>
+  
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" href="/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700;800&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+    html, body { width: 100%; height: 100%; }
+    
+    body {
+      font-family: 'IBM Plex Sans Thai', 'Kanit', sans-serif;
+      background: linear-gradient(135deg, #F5F5F5 0%, #EEEEEE 100%);
+      color: #333333;
+      overflow: hidden;
+      position: fixed;
+      transition: background 0.3s ease;
+    }
+    
+    body.dark-mode {
+      background: linear-gradient(135deg, #2A2A2A 0%, #1F1F1F 100%);
+      color: #E8E8E8;
+    }
+    
+    .app-root {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(135deg, #F5F5F5 0%, #EEEEEE 100%);
+      padding-top: env(safe-area-inset-top, 0);
+      padding-bottom: env(safe-area-inset-bottom, 0);
+      transition: background 0.3s ease;
+    }
+    
+    .app-root.dark-mode {
+      background: linear-gradient(135deg, #2A2A2A 0%, #1F1F1F 100%);
+    }
+    
+    .header {
+      padding: 16px 18px;
+      background: white;
+      border-bottom: 1px solid #E0E0E0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+    }
+    
+    .dark-mode .header {
+      background: #323232;
+      border-bottom-color: #424242;
+    }
+    
+    .header-title {
+      font-family: 'Kanit', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #FF8C42 0%, #F77F00 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      transition: all 0.3s ease;
+    }
+    
+    .dark-mode .header-title {
+      background: linear-gradient(135deg, #FFB74D 0%, #FFA726 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .theme-toggle {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: none;
+      background: #F0F0F0;
+      color: #FF8C42;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.15s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .dark-mode .theme-toggle {
+      background: #424242;
+      color: #FFB74D;
+    }
+    
+    .theme-toggle:active {
+      transform: scale(0.92);
+    }
+    
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 12px 12px 100px;
+    }
+    
+    .content::-webkit-scrollbar { width: 0; }
+    
+    .tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+      padding: 0 4px;
+      background: white;
+      border-radius: 12px;
+      padding: 6px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+    }
+    
+    .dark-mode .tabs {
+      background: #323232;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+    
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      background: #F0F0F0;
+      color: #666666;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      transition: all 0.2s ease;
+    }
+    
+    .dark-mode .tab-btn {
+      background: #424242;
+      color: #BDBDBD;
+    }
+    
+    .tab-btn.active {
+      background: linear-gradient(135deg, #FF8C42 0%, #F77F00 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
+    }
+    
+    .tab-btn:active {
+      transform: scale(0.96);
+    }
+    
+    .material-card {
+      background: white;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      border: 1px solid #E8E8E8;
+    }
+    
+    .material-card:active {
+      transform: scale(0.98);
+      box-shadow: 0 4px 16px rgba(255, 140, 66, 0.15);
+    }
+    
+    .dark-mode .material-card {
+      background: #323232;
+      border-color: #424242;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .dark-mode .material-card:active {
+      background: #3F3F3F;
+      box-shadow: 0 4px 16px rgba(255, 152, 74, 0.2);
+    }
+    
+    .material-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      background: rgba(255, 140, 66, 0.08);
+    }
+    
+    .dark-mode .material-icon {
+      background: rgba(255, 140, 66, 0.15);
+    }
+    
+    .material-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .material-name {
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 2px;
+      color: #333333;
+      transition: color 0.3s ease;
+    }
+    
+    .dark-mode .material-name {
+      color: #E8E8E8;
+    }
+    
+    .material-max {
+      font-size: 11px;
+      color: #999999;
+      transition: color 0.3s ease;
+    }
+    
+    .dark-mode .material-max {
+      color: #BDBDBD;
+    }
+    
+    .material-value {
+      text-align: right;
+    }
+    
+    .material-value-num {
+      font-family: 'Kanit', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    
+    .material-value-unit {
+      font-size: 9px;
+      color: #999999;
+      margin-top: 2px;
+      transition: color 0.3s ease;
+    }
+    
+    .dark-mode .material-value-unit {
+      color: #BDBDBD;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: #E0E0E0;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 6px;
+      transition: background 0.3s ease;
+    }
+    
+    .dark-mode .progress-bar {
+      background: #424242;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.6s cubic-bezier(.4,1.4,.4,1);
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: flex-end;
+      z-index: 50;
+      animation: backdropIn 0.3s ease;
+    }
+    
+    .backdrop.active {
+      display: flex;
+    }
+    
+    @keyframes backdropIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .sheet {
+      width: 100%;
+      background: white;
+      border-radius: 20px 20px 0 0;
+      padding: 12px 16px 20px;
+      max-height: 85%;
+      overflow-y: auto;
+      animation: sheetUp 0.3s cubic-bezier(.2,.8,.3,1);
+      padding-bottom: calc(20px + env(safe-area-inset-bottom, 0));
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+    }
+    
+    .dark-mode .sheet {
+      background: #323232;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+    }
+    
+    @keyframes sheetUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    
+    .sheet-handle {
+      width: 36px;
+      height: 4px;
+      background: #E0E0E0;
+      border-radius: 2px;
+      margin: 6px auto 14px;
+      transition: background 0.3s ease;
+    }
+    
+    .dark-mode .sheet-handle {
+      background: #424242;
+    }
+    
+    .sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+    
+    .sheet-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: #333333;
+      transition: color 0.3s ease;
+    }
+    
+    .dark-mode .sheet-title {
+      color: #E8E8E8;
+    }
+    
+    .sheet-subtitle {
+      font-size: 11px;
+      color: #999999;
+      margin-top: 2px;
+      transition: color 0.3s ease;
+    }
+    
+    .dark-mode .sheet-subtitle {
+      color: #BDBDBD;
+    }
+    
+    .close-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: #F0F0F0;
+      border: none;
+      color: #999999;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+    
+    .dark-mode .close-btn {
+      background: #424242;
+      color: #BDBDBD;
+    }
+    
+    .close-btn:active {
+      transform: scale(0.92);
+    }
+    
+    .preview-num {
+      font-family: 'Kanit', sans-serif;
+      font-size: 48px;
+      font-weight: 800;
+      text-align: center;
+      margin: 14px 0 8px;
+      line-height: 1;
+      background: linear-gradient(135deg, #FF8C42 0%, #F77F00 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      transition: all 0.3s ease;
+    }
+    
+    .dark-mode .preview-num {
+      background: linear-gradient(135deg, #FFB74D 0%, #FFA726 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .preview-delta {
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #999999;
+      transition: color 0.3s ease;
+    }
+    
+    .dark-mode .preview-delta {
+      color: #BDBDBD;
+    }
+    
+    .quick-buttons {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    
+    .quick-btn {
+      padding: 8px 4px;
+      border-radius: 10px;
+      border: 2px solid;
+      background: white;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 12px;
+      transition: all 0.15s ease;
+    }
+    
+    .dark-mode .quick-btn {
+      background: #424242;
+    }
+    
+    .quick-btn-minus {
+      border-color: #EF5350;
+      color: #EF5350;
+    }
+    
+    .quick-btn-minus:active {
+      background: #FFEBEE;
+    }
+    
+    .dark-mode .quick-btn-minus:active {
+      background: #3F2C2C;
+    }
+    
+    .quick-btn-plus {
+      border-color: #66BB6A;
+      color: #66BB6A;
+    }
+    
+    .quick-btn-plus:active {
+      background: #E8F5E9;
+    }
+    
+    .dark-mode .quick-btn-plus:active {
+      background: #2E3F2E;
+    }
+    
+    .team-select-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #333333;
+      margin-bottom: 8px;
+      display: block;
+      transition: color 0.3s ease;
+    }
+    
+    .dark-mode .team-select-label {
+      color: #E8E8E8;
+    }
+    
+    .team-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    
+    .team-btn {
+      padding: 10px 6px;
+      border-radius: 10px;
+      border: 1.5px solid #E0E0E0;
+      background: white;
+      color: #333333;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 11.5px;
+      transition: all 0.15s ease;
+    }
+    
+    .dark-mode .team-btn {
+      border-color: #424242;
+      background: #424242;
+      color: #E8E8E8;
+    }
+    
+    .team-btn.active {
+      border-color: #FF8C42;
+      background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(247, 127, 0, 0.1) 100%);
+      color: #FF8C42;
+      box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.15);
+    }
+    
+    .dark-mode .team-btn.active {
+      border-color: #FFB74D;
+      background: linear-gradient(135deg, rgba(255, 183, 77, 0.15) 0%, rgba(255, 167, 38, 0.15) 100%);
+      color: #FFB74D;
+    }
+    
+    .confirm-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #FF8C42 0%, #F77F00 100%);
+      color: white;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
+    }
+    
+    .confirm-btn:active:not(:disabled) {
+      transform: scale(0.96);
+    }
+    
+    .confirm-btn:disabled {
+      opacity: 0.5;
+      box-shadow: none;
+    }
+    
+    .history-item {
+      background: white;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      gap: 10px;
+      border: 1px solid #E8E8E8;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+      transition: all 0.3s ease;
+    }
+    
+    .dark-mode .history-item {
+      background: #323232;
+      border-color: #424242;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+    
+    .history-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    
+    .history-icon.add {
+      background: #E8F5E9;
+    }
+    
+    .dark-mode .history-icon.add {
+      background: #2E3F2E;
+    }
+    
+    .history-icon.remove {
+      background: #FFEBEE;
+    }
+    
+    .dark-mode .history-icon.remove {
+      background: #3F2C2C;
+    }
+    
+    .history-content {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .history-title {
+      font-weight: 700;
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 4px;
+      color: #333333;
+      transition: color 0.3s ease;
+    }
+    
+    .dark-mode .history-title {
+      color: #E8E8E8;
+    }
+    
+    .history-delta {
+      font-family: 'Kanit', sans-serif;
+      font-weight: 800;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    
+    .history-delta.add { color: #66BB6A; }
+    .history-delta.remove { color: #EF5350; }
+    
+    .history-meta {
+      font-size: 10px;
+      color: #999999;
+      margin-bottom: 4px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      transition: color 0.3s ease;
+    }
+    
+    .dark-mode .history-meta {
+      color: #BDBDBD;
+    }
+    
+    .team-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      background: #F0F0F0;
+      color: #666666;
+      border-radius: 999px;
+      border: 1px solid #E0E0E0;
+      font-size: 9px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .dark-mode .team-badge {
+      background: #424242;
+      color: #BDBDBD;
+      border-color: #535353;
+    }
+    
+    .history-time {
+      font-size: 9px;
+      color: #999999;
+      transition: color 0.3s ease;
+    }
+    
+    .dark-mode .history-time {
+      color: #BDBDBD;
+    }
+    
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      border: 1px solid #E0E0E0;
+      color: #333333;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      z-index: 100;
+      animation: toastIn 0.3s cubic-bezier(.2,.8,.3,1);
+      box-shadow: 0 4px 16px rgba(255, 140, 66, 0.15);
+      transition: all 0.3s ease;
+    }
+    
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translate(-50%, 12px);
+      }
+      to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+    }
+    
+    .dark-mode .toast {
+      background: #323232;
+      border-color: #424242;
+      color: #E8E8E8;
+      box-shadow: 0 4px 16px rgba(255, 152, 74, 0.2);
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 50px 20px;
+      color: #999999;
+      transition: color 0.3s ease;
+    }
+    
+    .dark-mode .empty-state {
+      color: #BDBDBD;
+    }
+    
+    .empty-state-icon {
+      font-size: 40px;
+      margin-bottom: 10px;
+      opacity: 0.6;
+    }
+    
+    .empty-state-text {
+      font-size: 12px;
+    }
+    
+    .setting-row {
+      background: white;
+      border: 1px solid #E8E8E8;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+    
+    .dark-mode .setting-row {
+      background: #323232;
+      border-color: #424242;
+    }
+    
+    .setting-title {
+      font-weight: 700;
+      font-size: 13px;
+      color: #333333;
+      transition: color 0.3s ease;
+    }
+    
+    .dark-mode .setting-title {
+      color: #E8E8E8;
+    }
+    
+    .setting-subtitle {
+      font-size: 11px;
+      color: #999999;
+      margin-top: 2px;
+      transition: color 0.3s ease;
+    }
+    
+    .dark-mode .setting-subtitle {
+      color: #BDBDBD;
+    }
+    
+    .reset-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1.5px solid #EF5350;
+      background: white;
+      color: #EF5350;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 8px;
+    }
+    
+    .dark-mode .reset-btn {
+      background: #323232;
+      border-color: #C62828;
+      color: #FF8A80;
+    }
+    
+    .reset-btn:active {
+      background: #FFEBEE;
+    }
+    
+    .dark-mode .reset-btn:active {
+      background: #3F2C2C;
+    }
+  </style>
+</head>
+<body>
+<div class="app-root">
+  <div class="header">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <svg width="32" height="32" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0;">
+        <defs>
+          <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#FF8C42;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#F77F00;stop-opacity:1" />
+          </linearGradient>
+        </defs>
+        <rect width="192" height="192" rx="40" fill="url(#headerGrad)" />
+        <rect x="60" y="60" width="72" height="54" fill="white" opacity="0.9" />
+        <rect x="60" y="114" width="72" height="18" fill="white" opacity="0.7" />
+      </svg>
+      <div class="header-title">Stockmat</div>
+    </div>
+    <button class="theme-toggle" id="themeBtn">🌙</button>
+  </div>
+  
+  <div class="content" id="content">
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+      <button class="tab-btn" data-tab="history">History</button>
+      <button class="tab-btn" data-tab="stats">Stats</button>
+      <button class="tab-btn" data-tab="more">Settings</button>
+    </div>
+    
+    <div id="dashboard-tab" class="tab-content"></div>
+    <div id="history-tab" class="tab-content" style="display: none;"></div>
+    <div id="stats-tab" class="tab-content" style="display: none;">
+      <div style="margin-bottom: 20px;">
+        <h3 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">Stock Ratio</h3>
+        <div style="background: var(--surface-2); border: 0.5px solid var(--border); border-radius: 12px; padding: 16px;">
+          <canvas id="pieChart" height="100"></canvas>
+        </div>
+      </div>
+      
+      <div style="margin-bottom: 20px;">
+        <h3 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">Activity by Team</h3>
+        <div style="background: var(--surface-2); border: 0.5px solid var(--border); border-radius: 12px; padding: 16px;">
+          <canvas id="barChart" height="80"></canvas>
+        </div>
+      </div>
+      
+      <div>
+        <h3 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">Top Materials</h3>
+        <div id="topMaterials" style="display: flex; flex-direction: column; gap: 8px;"></div>
+      </div>
+    </div>
+    <div id="more-tab" class="tab-content" style="display: none;"></div>
+  </div>
+</div>
+
+<div class="backdrop" id="backdrop">
+  <div class="sheet" id="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div>
+        <div class="sheet-title" id="sheetTitle">Material</div>
+        <div class="sheet-subtitle" id="sheetSubtitle">Current: 0</div>
+      </div>
+      <button class="close-btn" id="closeBtn">✕</button>
+    </div>
+    
+    <div class="preview-num" id="previewNum">0</div>
+    <div class="preview-delta" id="previewDelta">ยังไม่มีการเปลี่ยนแปลง</div>
+    
+    <div class="quick-buttons" id="quickButtons"></div>
+    
+    <label class="team-select-label">เลือกทีม</label>
+    <div class="team-grid" id="teamGrid"></div>
+    
+    <button class="confirm-btn" id="confirmBtn" disabled>
+      <span>✓</span>
+      <span>ตกลง</span>
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast" style="display: none;"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+const TEAMS = [
+  { id: 'admin', name: 'Admin', color: '#FF0000' },
+  { id: 'pathumA', name: 'Pathum.A', color: '#1976D2' },
+  { id: 'pathumB', name: 'Pathum.B', color: '#D32F2F' },
+  { id: 'pathumC', name: 'Pathum.C', color: '#7B1FA2' },
+  { id: 'lkbA', name: 'LKB.A', color: '#388E3C' },
+  { id: 'lkbB', name: 'LKB.B', color: '#F57C00' },
+  { id: 'lkbC', name: 'LKB.C', color: '#0097A7' },
+];
+
+const MATERIALS = [
+  { id: 'cable12', name: 'เคเบิ้ล 12 Core', short: '12 Core', max: 5000, emoji: '📦', color: '#1976D2' },
+  { id: 'cable24', name: 'เคเบิ้ล 24 Core', short: '24 Core', max: 5000, emoji: '📦', color: '#D32F2F' },
+  { id: 'closure12f', name: 'Closure 12F', short: '12F', max: 100, emoji: '🔌', color: '#7B1FA2' },
+  { id: 'closure24f', name: 'Closure 24F', short: '24F', max: 100, emoji: '🔌', color: '#388E3C' },
+  { id: 'closure48f', name: 'Closure 48F', short: '48F', max: 100, emoji: '🔌', color: '#F57C00' },
+  { id: 'closure120f', name: 'Closure 120F', short: '120F', max: 20, emoji: '🔌', color: '#0097A7' },
+  { id: 'splitter18', name: 'Splitter 1:8', short: '1:8', max: 50, emoji: '⚡', color: '#FF6F00' },
+  { id: 'plc', name: 'PLC Splitter', short: 'PLC', max: 50, emoji: '⚙️', color: '#1B5E20' },
+];
+
+const DEFAULT_STOCK = {
+  cable12: 3200, cable24: 1850, closure12f: 64, closure24f: 45, closure48f: 37,
+  closure120f: 12, splitter18: 28, plc: 19,
+};
+
+let app = {
+  theme: localStorage.getItem('stockmat_theme') || 'light',
+  stock: JSON.parse(localStorage.getItem('stockmat_stock') || JSON.stringify(DEFAULT_STOCK)),
+  history: JSON.parse(localStorage.getItem('stockmat_history') || '[]'),
+  tab: 'dashboard',
+  selected: null,
+  delta: 0,
+  team: null,
+};
+
+function clamp(v, min, max) { return Math.min(Math.max(v, min), max); }
+
+function saveState() {
+  localStorage.setItem('stockmat_theme', app.theme);
+  localStorage.setItem('stockmat_stock', JSON.stringify(app.stock));
+  localStorage.setItem('stockmat_history', JSON.stringify(app.history));
+}
+
+function setTheme(theme) {
+  app.theme = theme;
+  const isDark = theme === 'dark';
+  document.body.classList.toggle('dark-mode', isDark);
+  document.querySelector('.app-root').classList.toggle('dark-mode', isDark);
+  document.getElementById('themeBtn').textContent = isDark ? '☀️' : '🌙';
+  saveState();
+}
+
+function initTheme() {
+  const isDark = app.theme === 'dark';
+  document.body.classList.toggle('dark-mode', isDark);
+  document.querySelector('.app-root').classList.toggle('dark-mode', isDark);
+  document.getElementById('themeBtn').textContent = isDark ? '☀️' : '🌙';
+}
+
+function renderDashboard() {
+  const html = MATERIALS.map(m => {
+    const val = app.stock[m.id] || 0;
+    const pct = clamp(val / m.max, 0, 1);
+    return `
+      <div class="material-card" onclick="openMaterial('${m.id}')">
+        <div class="material-icon">${m.emoji}</div>
+        <div class="material-info">
+          <div class="material-name">${m.name}</div>
+          <div class="material-max">สูงสุด ${m.max.toLocaleString()}</div>
+          <div class="progress-bar"><div class="progress-fill" style="width: ${pct * 100}%; background: linear-gradient(90deg, ${m.color} 0%, ${m.color}dd 100%); box-shadow: 0 0 8px ${m.color}88;"></div></div>
+        </div>
+        <div class="material-value">
+          <div class="material-value-num" style="color: ${m.color};">${val.toLocaleString()}</div>
+          <div class="material-value-unit">ม.</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('dashboard-tab').innerHTML = html;
+}
+
+function renderStats() {
+  renderPieChart();
+  renderBarChart();
+  renderTopMaterials();
+}
+
+function renderPieChart() {
+  const ctx = document.getElementById('pieChart').getContext('2d');
+  const labels = MATERIALS.map(m => m.short);
+  const data = MATERIALS.map(m => app.stock[m.id] || 0);
+  const colors = MATERIALS.map(m => m.color);
+  
+  if (window.pieChartInstance) {
+    window.pieChartInstance.destroy();
+  }
+  
+  window.pieChartInstance = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        backgroundColor: colors,
+        borderColor: 'var(--surface-2)',
+        borderWidth: 2,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: 'var(--text-primary)',
+            font: { size: 11, weight: '600' },
+            padding: 10,
+            usePointStyle: true,
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderBarChart() {
+  const ctx = document.getElementById('barChart').getContext('2d');
+  const teamActivityMap = {};
+  
+  TEAMS.forEach(t => {
+    teamActivityMap[t.id] = app.history.filter(h => h.team === t.id).length;
+  });
+  
+  const labels = TEAMS.map(t => t.name);
+  const data = TEAMS.map(t => teamActivityMap[t.id] || 0);
+  const colors = TEAMS.map(t => t.color);
+  
+  if (window.barChartInstance) {
+    window.barChartInstance.destroy();
+  }
+  
+  window.barChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Transactions',
+        data: data,
+        backgroundColor: colors,
+        borderRadius: 6,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          ticks: {
+            color: 'var(--text-secondary)',
+            font: { size: 11 }
+          },
+          grid: {
+            color: 'var(--border)',
+            drawBorder: false
+          }
+        },
+        y: {
+          ticks: {
+            color: 'var(--text-primary)',
+            font: { size: 11, weight: '600' }
+          },
+          grid: {
+            display: false,
+            drawBorder: false
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderTopMaterials() {
+  const topMats = MATERIALS
+    .map(m => ({
+      name: m.short,
+      fullName: m.name,
+      value: app.stock[m.id] || 0,
+      max: m.max,
+      color: m.color,
+      pct: (app.stock[m.id] || 0) / m.max
+    }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 5);
+  
+  const html = topMats.map(m => `
+    <div style="background: var(--surface-2); border: 0.5px solid var(--border); border-radius: 10px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <div style="font-weight: 600; font-size: 13px; color: var(--text-primary);">${m.fullName}</div>
+        <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">${m.value.toLocaleString()} / ${m.max.toLocaleString()}</div>
+      </div>
+      <div style="text-align: right;">
+        <div style="font-family: 'Kanit', sans-serif; font-size: 16px; font-weight: 800; color: ${m.color};">${Math.round(m.pct * 100)}%</div>
+      </div>
+    </div>
+  `).join('');
+  
+  document.getElementById('topMaterials').innerHTML = html || '<div class="empty-state"><div class="empty-state-text">No data yet</div></div>';
+}
+
+function renderHistory() {
+  if (app.history.length === 0) {
+    document.getElementById('history-tab').innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">ยังไม่มีรายการ</div></div>';
+    return;
+  }
+  const html = app.history.map(h => {
+    const isAdd = h.delta >= 0;
+    const team = TEAMS.find(t => t.id === h.team);
+    return `
+      <div class="history-item">
+        <div class="history-icon ${isAdd ? 'add' : 'remove'}">${isAdd ? '📈' : '📉'}</div>
+        <div class="history-content">
+          <div class="history-title">
+            <span>${h.materialName}</span>
+            <span class="history-delta ${isAdd ? 'add' : 'remove'}">${isAdd ? '+' : ''}${h.delta}</span>
+          </div>
+          <div class="history-meta">
+            <span class="team-badge" style="background: ${team?.color}22; color: ${team?.color}; border-color: ${team?.color}55;">● ${team?.name}</span>
+            <span>${h.status}</span>
+          </div>
+          <div class="history-time">${formatDateTime(h.timestamp)}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('history-tab').innerHTML = html;
+}
+
+function formatDateTime(iso) {
+  const d = new Date(iso);
+  const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear() + 543} · ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+function openMaterial(matId) {
+  app.selected = MATERIALS.find(m => m.id === matId);
+  app.delta = 0;
+  app.team = null;
+  
+  document.getElementById('backdrop').classList.add('active');
+  document.getElementById('sheetTitle').textContent = app.selected.name;
+  document.getElementById('sheetSubtitle').textContent = `คงเหลือ ${(app.stock[app.selected.id] || 0).toLocaleString()} ม.`;
+  
+  const quickBtns = document.getElementById('quickButtons');
+  quickBtns.innerHTML = [-100, -10, -5, -1, 1, 5, 10, 100].map(n => {
+    const cls = n > 0 ? 'quick-btn-plus' : 'quick-btn-minus';
+    const isLarge = Math.abs(n) >= 100;
+    return `<button class="quick-btn ${cls}" onclick="adjustDelta(${n})" style="font-size: ${isLarge ? '11px' : '12px'};">${n > 0 ? '+' : ''}${n}</button>`;
+  }).join('');
+  
+  document.getElementById('teamGrid').innerHTML = TEAMS.map(t => `
+    <button class="team-btn" onclick="selectTeam('${t.id}')">${t.name}</button>
+  `).join('');
+  
+  updateSheet();
+}
+
+function adjustDelta(n) {
+  app.delta = clamp(app.delta + n, -app.selected.max, app.selected.max);
+  updateSheet();
+}
+
+function selectTeam(teamId) {
+  app.team = teamId;
+  document.querySelectorAll('.team-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  updateSheet();
+}
+
+function updateSheet() {
+  const current = app.stock[app.selected.id] || 0;
+  const preview = clamp(current + app.delta, 0, app.selected.max);
+  
+  document.getElementById('previewNum').textContent = preview.toLocaleString();
+  
+  if (app.delta === 0) {
+    document.getElementById('previewDelta').textContent = 'ยังไม่มีการเปลี่ยนแปลง';
+    document.getElementById('previewDelta').style.color = '#999999';
+  } else {
+    document.getElementById('previewDelta').textContent = `${app.delta > 0 ? '+' : ''}${app.delta} ม.`;
+    document.getElementById('previewDelta').style.color = app.delta > 0 ? '#66BB6A' : '#EF5350';
+  }
+  
+  document.getElementById('confirmBtn').disabled = app.delta === 0 || !app.team;
+}
+
+function closeMaterial() {
+  document.getElementById('backdrop').classList.remove('active');
+  app.selected = null;
+  app.delta = 0;
+  app.team = null;
+}
+
+function confirmChange() {
+  if (!app.selected || app.delta === 0 || !app.team) return;
+  
+  const current = app.stock[app.selected.id] || 0;
+  const newVal = clamp(current + app.delta, 0, app.selected.max);
+  const actualDelta = newVal - current;
+  
+  app.stock[app.selected.id] = newVal;
+  app.history.unshift({
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    materialId: app.selected.id,
+    materialName: app.selected.name,
+    delta: actualDelta,
+    team: app.team,
+    timestamp: new Date().toISOString(),
+    status: actualDelta >= 0 ? 'รับมา' : 'เบิกไป',
+  });
+  
+  saveState();
+  renderDashboard();
+  if (window.pieChartInstance) renderStats();
+  closeMaterial();
+  showToast(`${app.history[0].status} ${app.selected.name} ${actualDelta > 0 ? '+' : ''}${actualDelta}`);
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.style.display = 'block';
+  setTimeout(() => toast.style.display = 'none', 2600);
+}
+
+function switchTab(tabName) {
+  document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`${tabName}-tab`).style.display = 'block';
+  event.target.classList.add('active');
+  app.tab = tabName;
+  
+  if (tabName === 'history') renderHistory();
+  if (tabName === 'stats') renderStats();
+  if (tabName === 'more') {
+    document.getElementById('more-tab').innerHTML = `
+      <div class="setting-row">
+        <div>
+          <div class="setting-title">📱 โหมดแสดงผล</div>
+          <div class="setting-subtitle">${app.theme === 'light' ? 'โหมดสว่าง' : 'โหมดมืด'}</div>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-title">📊 จำนวนการบันทึก</div>
+          <div class="setting-subtitle">${app.history.length} รายการ</div>
+        </div>
+      </div>
+      <button class="reset-btn" onclick="resetData()">🔄 รีเซ็ตข้อมูล</button>
+    `;
+  }
+}
+
+function resetData() {
+  if (confirm('แน่ใจหรือ? ข้อมูลทั้งหมดจะถูกลบ')) {
+    app.stock = { ...DEFAULT_STOCK };
+    app.history = [];
+    saveState();
+    renderDashboard();
+    showToast('รีเซ็ตเรียบร้อย');
+  }
+}
+
+document.getElementById('themeBtn').addEventListener('click', () => {
+  const newTheme = app.theme === 'light' ? 'dark' : 'light';
+  setTheme(newTheme);
+});
+
+document.getElementById('closeBtn').addEventListener('click', closeMaterial);
+document.getElementById('backdrop').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeMaterial();
+});
+
+document.getElementById('confirmBtn').addEventListener('click', confirmChange);
+document.querySelectorAll('.tab-btn').forEach(b => {
+  b.addEventListener('click', e => switchTab(e.target.dataset.tab));
+});
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js', { scope: './' }).catch(() => {});
+  });
+}
+
+initTheme();
+renderDashboard();
+</script>
+</body>
+</html>
